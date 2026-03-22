@@ -1,66 +1,121 @@
 {% extends 'layout_auth.html' %}
 {% block content %}
-<div style="min-height:100vh;
-            background:linear-gradient(135deg,#1a1c2e 0%,#2d2f4e 100%);
-            display:flex; flex-direction:column;
-            align-items:center; justify-content:center;
-            padding:2rem 1rem;">
+
+<!-- Hero -->
+<div style="min-height:100vh; background:linear-gradient(135deg,#0f0f1a 0%,#1a1c2e 50%,#2d2f4e 100%);
+            display:flex; flex-direction:column; align-items:center;
+            justify-content:center; padding:2rem 1rem; position:relative; overflow:hidden;">
+
+  <!-- Background decorations -->
+  <div style="position:absolute; top:-100px; right:-100px; width:400px; height:400px;
+              background:radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
+              border-radius:50%; pointer-events:none;"></div>
+  <div style="position:absolute; bottom:-100px; left:-100px; width:350px; height:350px;
+              background:radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
+              border-radius:50%; pointer-events:none;"></div>
+
+  <!-- Badge -->
+  <div class="mb-4">
+    <span class="badge rounded-pill px-3 py-2"
+          style="background:rgba(99,102,241,0.2); color:#a5b4fc;
+                 border:1px solid rgba(99,102,241,0.3); font-size:.85rem;">
+      ✨ Personal Finance Tracker
+    </span>
+  </div>
 
   <!-- Logo & Title -->
-  <div class="text-center mb-5">
-    <div style="font-size:4rem">💸</div>
-    <h1 class="fw-bold text-white mt-2 mb-1">MoneyTracker</h1>
-    <p class="text-white-50 fs-5">Track your income & expenses — simply and smartly</p>
+  <div class="text-center mb-4">
+    <div style="font-size:4.5rem; filter:drop-shadow(0 0 20px rgba(99,102,241,0.5))">💸</div>
+    <h1 class="fw-bold mt-2 mb-2"
+        style="font-size:3.5rem; background:linear-gradient(135deg,#fff 0%,#a5b4fc 100%);
+               -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+      MoneyTracker
+    </h1>
+    <p class="mb-0" style="color:rgba(255,255,255,.6); font-size:1.1rem; max-width:480px;">
+      บันทึกรายรับ-รายจ่าย วิเคราะห์การใช้เงิน<br>
+      ตั้งงบประมาณ และบรรลุเป้าหมายทางการเงิน
+    </p>
+  </div>
+
+  <!-- CTA Buttons -->
+  <div class="d-flex gap-3 flex-wrap justify-content-center mb-5">
+    <a href="{{ url_for('auth.register') }}"
+       class="btn btn-lg px-5 fw-semibold"
+       style="background:linear-gradient(135deg,#6366f1,#4f46e5);
+              color:#fff; border:none; border-radius:50px;
+              box-shadow:0 4px 20px rgba(99,102,241,0.4);">
+      <i class="bi bi-rocket-takeoff me-2"></i>เริ่มใช้งานฟรี
+    </a>
+    <a href="{{ url_for('auth.login') }}"
+       class="btn btn-lg px-5 fw-semibold"
+       style="background:rgba(255,255,255,.08); color:#fff;
+              border:1px solid rgba(255,255,255,.2); border-radius:50px;
+              backdrop-filter:blur(10px);">
+      <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+    </a>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="d-flex gap-4 flex-wrap justify-content-center mb-5">
+    {% for icon, label in [('📊','Dashboard & Charts'),('🏷️','Smart Categories'),('💰','Budget Tracking'),('🎯','Savings Goals')] %}
+    <div class="text-center">
+      <div style="font-size:1.5rem">{{ icon }}</div>
+      <div style="color:rgba(255,255,255,.5); font-size:.78rem; margin-top:.2rem;">{{ label }}</div>
+    </div>
+    {% endfor %}
   </div>
 
   <!-- Feature Cards -->
-  <div class="row g-3 mb-5" style="max-width:800px; width:100%;">
+  <div class="row g-3" style="max-width:900px; width:100%;">
+
     <div class="col-md-4">
-      <div class="card p-3 text-center h-100"
-           style="background:rgba(255,255,255,.07);
-                  border:1px solid rgba(255,255,255,.1);">
-        <div style="font-size:2rem">📊</div>
-        <div class="text-white fw-semibold mt-2">Dashboard</div>
-        <div class="text-white-50 small mt-1">
-          สรุปรายรับ-รายจ่าย พร้อม Chart แบบ real-time
-        </div>
+      <div class="p-4 h-100 rounded-4"
+           style="background:rgba(255,255,255,.05);
+                  border:1px solid rgba(255,255,255,.08);
+                  backdrop-filter:blur(10px);">
+        <div class="mb-3" style="font-size:2rem">📊</div>
+        <h6 class="fw-bold text-white mb-2">Smart Dashboard</h6>
+        <p style="color:rgba(255,255,255,.55); font-size:.88rem; margin:0;">
+          สรุปรายรับ-รายจ่าย พร้อม Bar Chart และ Doughnut Chart
+          แสดงผลแบบ real-time ทุกเดือน
+        </p>
       </div>
     </div>
+
     <div class="col-md-4">
-      <div class="card p-3 text-center h-100"
-           style="background:rgba(255,255,255,.07);
-                  border:1px solid rgba(255,255,255,.1);">
-        <div style="font-size:2rem">🏷️</div>
-        <div class="text-white fw-semibold mt-2">Categories</div>
-        <div class="text-white-50 small mt-1">
-          แยกหมวดหมู่รายรับ-รายจ่ายได้ตามต้องการ
-        </div>
+      <div class="p-4 h-100 rounded-4"
+           style="background:rgba(99,102,241,.12);
+                  border:1px solid rgba(99,102,241,.25);
+                  backdrop-filter:blur(10px);">
+        <div class="mb-3" style="font-size:2rem">💸</div>
+        <h6 class="fw-bold text-white mb-2">Track Every Baht</h6>
+        <p style="color:rgba(255,255,255,.55); font-size:.88rem; margin:0;">
+          บันทึกรายรับ-รายจ่าย แนบสลิป
+          แยกหมวดหมู่ด้วย emoji icon ที่คุณกำหนดเอง
+        </p>
       </div>
     </div>
+
     <div class="col-md-4">
-      <div class="card p-3 text-center h-100"
-           style="background:rgba(255,255,255,.07);
-                  border:1px solid rgba(255,255,255,.1);">
-        <div style="font-size:2rem">💰</div>
-        <div class="text-white fw-semibold mt-2">Budget</div>
-        <div class="text-white-50 small mt-1">
-          ตั้งงบประมาณรายเดือน ติดตาม progress
-        </div>
+      <div class="p-4 h-100 rounded-4"
+           style="background:rgba(255,255,255,.05);
+                  border:1px solid rgba(255,255,255,.08);
+                  backdrop-filter:blur(10px);">
+        <div class="mb-3" style="font-size:2rem">🎯</div>
+        <h6 class="fw-bold text-white mb-2">Goals & Budget</h6>
+        <p style="color:rgba(255,255,255,.55); font-size:.88rem; margin:0;">
+          ตั้งงบประมาณรายเดือน และเป้าหมายออมเงิน
+          ติดตาม progress ได้ทุกวัน
+        </p>
       </div>
     </div>
+
   </div>
 
-  <!-- CTA -->
-  <div class="d-flex gap-3 flex-wrap justify-content-center">
-    <a href="{{ url_for('auth.register') }}"
-       class="btn btn-primary btn-lg px-5 fw-semibold">
-      Get Started — Free
-    </a>
-    <a href="{{ url_for('auth.login') }}"
-       class="btn btn-outline-light btn-lg px-5">
-      Log In
-    </a>
-  </div>
+  <!-- Footer note -->
+  <p class="mt-5" style="color:rgba(255,255,255,.3); font-size:.8rem;">
+    Free to use · No credit card required · Start in seconds
+  </p>
 
 </div>
 {% endblock %}

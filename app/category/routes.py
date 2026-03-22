@@ -9,13 +9,19 @@ category = Blueprint('category', __name__, template_folder='templates')
 @category.route('/')
 @login_required
 def index():
-    search = request.args.get('search', '').strip()
+    search      = request.args.get('search', '').strip()
+    type_filter = request.args.get('type', '')
+
     q = Category.query.filter_by(user_id=current_user.id)
     if search:
         q = q.filter(Category.name.ilike(f'%{search}%'))
+    if type_filter in ('income', 'expense'):
+        q = q.filter_by(type=type_filter)
+
     cats = q.order_by(Category.type, Category.name).all()
     return render_template('category/category_list.html',
-        title='Categories', categories=cats, search=search)
+        title='Categories', categories=cats,
+        search=search, type_filter=type_filter)
 
 @category.route('/add', methods=['GET', 'POST'])
 @login_required

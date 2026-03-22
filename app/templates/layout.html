@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -26,6 +26,10 @@
          href="{{ url_for('transaction.index') }}">
         <i class="bi bi-arrow-left-right"></i> Transactions
       </a>
+      <a class="nav-link {% if request.endpoint == 'transaction.calendar' %}active{% endif %}"
+         href="{{ url_for('transaction.calendar') }}">
+        <i class="bi bi-calendar3"></i> Calendar
+      </a>
       <a class="nav-link {% if request.blueprint == 'category' %}active{% endif %}"
          href="{{ url_for('category.index') }}">
         <i class="bi bi-tags"></i> Categories
@@ -33,6 +37,10 @@
       <a class="nav-link {% if request.blueprint == 'budget' %}active{% endif %}"
          href="{{ url_for('budget.index') }}">
         <i class="bi bi-wallet2"></i> Budget
+      </a>
+      <a class="nav-link {% if request.blueprint == 'goal' %}active{% endif %}"
+         href="{{ url_for('goal.index') }}">
+        <i class="bi bi-bullseye"></i> Goals
       </a>
       <hr class="sidebar-divider">
       <a class="nav-link {% if request.blueprint == 'profile' %}active{% endif %}"
@@ -49,6 +57,11 @@
     {% block content %}{% endblock %}
   </main>
 </div>
+
+<!-- Dark Mode Toggle -->
+<button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
+  🌙
+</button>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -88,7 +101,24 @@
 </div>
 
 <script>
-  // Confirm Modal
+  // ── Dark Mode ───────────────────────────────────────────────────
+  const html        = document.documentElement;
+  const toggleBtn   = document.getElementById('themeToggle');
+  const savedTheme  = localStorage.getItem('theme') || 'light';
+
+  function setTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    toggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    localStorage.setItem('theme', theme);
+  }
+
+  setTheme(savedTheme);
+
+  toggleBtn.addEventListener('click', () => {
+    setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+
+  // ── Confirm Modal ───────────────────────────────────────────────
   let deleteForm = null;
   document.querySelectorAll('form[data-confirm]').forEach(form => {
     form.addEventListener('submit', function(e) {
@@ -101,7 +131,7 @@
     if (deleteForm) deleteForm.submit();
   });
 
-  // Loading Spinner
+  // ── Loading Spinner ─────────────────────────────────────────────
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', function() {
       if (!this.hasAttribute('data-confirm')) {

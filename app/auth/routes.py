@@ -8,15 +8,54 @@ from app.models.category import Category
 auth = Blueprint('auth', __name__, template_folder='templates')
 
 DEFAULT_CATEGORIES = [
-    ('Salary',        'income',  '💼'),
-    ('Other Income',  'income',  '💰'),
-    ('Food',          'expense', '🍜'),
-    ('Transport',     'expense', '🚌'),
-    ('Housing',       'expense', '🏠'),
-    ('Entertainment', 'expense', '🎮'),
-    ('Health',        'expense', '💊'),
-    ('Shopping',      'expense', '🛒'),
-    ('Other',         'expense', '📦'),
+    # ── Income ───────────────────────────────────────────────────
+    ('Salary',          'income',  '💼'),
+    ('Freelance',       'income',  '💻'),
+    ('Business',        'income',  '🏢'),
+    ('Investment',      'income',  '📈'),
+    ('Bonus',           'income',  '🎁'),
+    ('Gift',            'income',  '🎀'),
+    ('Other Income',    'income',  '💰'),
+
+    # ── Food & Drink ─────────────────────────────────────────────
+    ('Food',            'expense', '🍜'),
+    ('Coffee & Drinks', 'expense', '☕'),
+    ('Groceries',       'expense', '🛍️'),
+
+    # ── Transport ────────────────────────────────────────────────
+    ('Transport',       'expense', '🚌'),
+    ('Fuel',            'expense', '⛽'),
+    ('Car Maintenance', 'expense', '🔧'),
+
+    # ── Housing ──────────────────────────────────────────────────
+    ('Rent',            'expense', '🏠'),
+    ('Utilities',       'expense', '💡'),
+    ('Internet',        'expense', '📶'),
+    ('Phone Bill',      'expense', '📱'),
+
+    # ── Health ───────────────────────────────────────────────────
+    ('Health',          'expense', '💊'),
+    ('Fitness',         'expense', '🏋️'),
+
+    # ── Shopping ─────────────────────────────────────────────────
+    ('Shopping',        'expense', '🛒'),
+    ('Clothing',        'expense', '👕'),
+    ('Electronics',     'expense', '📱'),
+
+    # ── Entertainment ────────────────────────────────────────────
+    ('Entertainment',   'expense', '🎮'),
+    ('Travel',          'expense', '✈️'),
+    ('Dining Out',      'expense', '🍽️'),
+
+    # ── Education ────────────────────────────────────────────────
+    ('Education',       'expense', '📚'),
+    ('Books',           'expense', '📖'),
+
+    # ── Other ────────────────────────────────────────────────────
+    ('Insurance',       'expense', '🛡️'),
+    ('Savings',         'expense', '🐷'),
+    ('Donation',        'expense', '🤝'),
+    ('Other',           'expense', '📦'),
 ]
 
 @auth.route('/register', methods=['GET', 'POST'])
@@ -25,11 +64,8 @@ def register():
         return redirect(url_for('main.index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(
-            username=form.username.data,
-            fullname=form.fullname.data or None,
-            email=form.email.data
-        )
+        user = User(username=form.username.data, email=form.email.data,
+                    fullname=form.fullname.data or None)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.flush()

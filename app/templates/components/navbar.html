@@ -1,9 +1,13 @@
 <nav class="navbar navbar-dark px-3 py-2" style="background: var(--sidebar-bg);">
-  <span class="navbar-brand fw-bold fs-5">💸 MoneyTracker</span>
-  <div class="d-flex align-items-center gap-2">
+  <a href="{{ url_for('main.index') }}"
+     class="navbar-brand fw-bold text-decoration-none">
+    💸 MoneyTracker
+  </a>
+  <a href="{{ url_for('profile.view_profile') }}"
+     class="d-flex align-items-center gap-2 text-decoration-none">
     <img src="{{ url_for('static', filename='img/' + current_user.profile_image) }}"
          width="32" height="32" class="rounded-circle border border-secondary"
          style="object-fit:cover;" alt="avatar">
     <span class="text-white small">{{ current_user.display_name }}</span>
-  </div>
+  </a>
 </nav>

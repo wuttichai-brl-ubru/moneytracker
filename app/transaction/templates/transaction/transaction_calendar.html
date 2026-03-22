@@ -1,0 +1,170 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0"><i class="bi bi-calendar3 me-2"></i>Calendar</h4>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('transaction.index') }}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-list-ul me-1"></i>List View
+    </a>
+    <a href="{{ url_for('transaction.add_transaction') }}" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>Add
+    </a>
+  </div>
+</div>
+
+<!-- Month Navigation -->
+<div class="card p-3 mb-3">
+  <div class="d-flex justify-content-between align-items-center">
+    <a href="{{ url_for('transaction.calendar', month=prev_month, year=prev_year) }}"
+       class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-chevron-left"></i>
+    </a>
+    <h5 class="fw-bold mb-0">{{ month_name }}</h5>
+    <a href="{{ url_for('transaction.calendar', month=next_month, year=next_year) }}"
+       class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-chevron-right"></i>
+    </a>
+  </div>
+</div>
+
+<!-- Calendar Grid -->
+<div class="card p-3">
+  <!-- Day Headers -->
+  <div class="row g-1 mb-1">
+    {% for day in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] %}
+    <div class="col text-center">
+      <small class="fw-semibold text-muted">{{ day }}</small>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Calendar Cells -->
+  {% set first_day = (month ~ '/1/' ~ year)|strptime('%m/%d/%Y') if false else None %}
+  <div id="calendar-grid"></div>
+</div>
+
+<!-- Day Detail Modal -->
+<div class="modal fade" id="dayModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h6 class="modal-title fw-bold" id="dayModalTitle"></h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="dayModalBody"></div>
+      <div class="modal-footer border-0">
+        <a href="{{ url_for('transaction.add_transaction') }}"
+           class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-lg me-1"></i>Add Transaction
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const events    = {{ events_json|safe }};
+const month     = {{ month }};
+const year      = {{ year }};
+const today     = new Date();
+
+function buildCalendar() {
+  const firstDay   = new Date(year, month - 1, 1).getDay();
+  const daysInMonth= new Date(year, month, 0).getDate();
+  const grid       = document.getElementById('calendar-grid');
+
+  let html = '<div class="row g-1">';
+  let dayCount = 1;
+
+  for (let week = 0; week < 6; week++) {
+    for (let dow = 0; dow < 7; dow++) {
+      const cellIndex = week * 7 + dow;
+      if (cellIndex < firstDay || dayCount > daysInMonth) {
+        html += `<div class="col" style="min-height:80px;"></div>`;
+      } else {
+        const dateStr    = `${year}-${String(month).padStart(2,'0')}-${String(dayCount).padStart(2,'0')}`;
+        const dayEvents  = events[dateStr];
+        const isToday    = (dayCount === today.getDate() &&
+                            month === today.getMonth()+1 &&
+                            year  === today.getFullYear());
+
+        let cellStyle = `min-height:80px; border-radius:10px; padding:.4rem;
+                         cursor:${dayEvents ? 'pointer' : 'default'};
+                         border:1px solid ${isToday ? '#6366f1' : 'transparent'};
+                         background:${isToday ? 'rgba(99,102,241,.08)' : 'transparent'};
+                         transition:.2s;`;
+
+        html += `<div class="col" style="${cellStyle}"
+                      ${dayEvents ? `onclick="showDay('${dateStr}')"` : ''}
+                      onmouseover="this.style.background='rgba(99,102,241,.05)'"
+                      onmouseout="this.style.background='${isToday ? 'rgba(99,102,241,.08)' : 'transparent'}'">`;
+
+        html += `<div class="fw-semibold mb-1 ${isToday ? 'text-primary' : ''}"
+                      style="font-size:.85rem;">${dayCount}</div>`;
+
+        if (dayEvents) {
+          if (dayEvents.income > 0) {
+            html += `<div class="badge bg-success-subtle text-success w-100 mb-1"
+                          style="font-size:.7rem;">
+                       +฿${dayEvents.income.toLocaleString()}
+                     </div>`;
+          }
+          if (dayEvents.expense > 0) {
+            html += `<div class="badge bg-danger-subtle text-danger w-100"
+                          style="font-size:.7rem;">
+                       -฿${dayEvents.expense.toLocaleString()}
+                     </div>`;
+          }
+        }
+
+        html += '</div>';
+        dayCount++;
+      }
+    }
+    if (dayCount > daysInMonth) break;
+  }
+
+  html += '</div>';
+  grid.innerHTML = html;
+}
+
+function showDay(dateStr) {
+  const dayEvents = events[dateStr];
+  if (!dayEvents) return;
+
+  const date = new Date(dateStr + 'T00:00:00');
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+  document.getElementById('dayModalTitle').textContent = date.toLocaleDateString('en-US', opts);
+
+  let body = '';
+  dayEvents.items.forEach(item => {
+    const isIncome = item.type === 'income';
+    body += `
+      <div class="d-flex justify-content-between align-items-center
+                  py-2 ${dayEvents.items.indexOf(item) < dayEvents.items.length-1 ? 'border-bottom' : ''}">
+        <div>
+          <div class="small fw-semibold">${item.category}</div>
+          <div class="text-muted" style="font-size:.8rem;">${item.description || '—'}</div>
+        </div>
+        <div class="fw-bold ${isIncome ? 'text-success' : 'text-danger'}">
+          ${isIncome ? '+' : '-'}฿${item.amount.toLocaleString()}
+        </div>
+      </div>`;
+  });
+
+  // Summary
+  body += `<div class="mt-3 pt-2 border-top d-flex justify-content-between">
+    <span class="text-success small fw-semibold">Income: ฿${dayEvents.income.toLocaleString()}</span>
+    <span class="text-danger small fw-semibold">Expense: ฿${dayEvents.expense.toLocaleString()}</span>
+  </div>`;
+
+  document.getElementById('dayModalBody').innerHTML = body;
+  new bootstrap.Modal(document.getElementById('dayModal')).show();
+}
+
+buildCalendar();
+</script>
+{% endblock %}

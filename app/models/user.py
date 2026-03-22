@@ -23,6 +23,8 @@ class User(db.Model, UserMixin):
                                    cascade='all, delete-orphan')
     budgets      = db.relationship('Budget',      backref='owner', lazy=True,
                                    cascade='all, delete-orphan')
+    goals        = db.relationship('Goal',        backref='owner', lazy=True,
+                                   cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')

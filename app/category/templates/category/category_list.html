@@ -6,14 +6,71 @@
     <i class="bi bi-plus-lg me-1"></i>Add Category
   </a>
 </div>
+
 <div class="card p-3 mb-3">
-  <form method="GET" class="d-flex gap-2">
-    <input name="search" class="form-control"
-           placeholder="🔍 Search categories..." value="{{ search }}">
-    <button class="btn btn-outline-primary px-4">Search</button>
-    <a href="{{ url_for('category.index') }}" class="btn btn-outline-secondary">Clear</a>
+  <form method="GET" class="row g-2 align-items-end">
+    <div class="col-md-5">
+      <label class="form-label small fw-semibold text-muted mb-1">Search</label>
+      <div class="input-group">
+        <span class="input-group-text bg-white">
+          <i class="bi bi-search text-muted"></i>
+        </span>
+        <input name="search" class="form-control border-start-0"
+               placeholder="Category name..." value="{{ search }}">
+      </div>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label small fw-semibold text-muted mb-1">Type</label>
+      <div class="d-flex gap-1">
+        <a href="{{ url_for('category.index', search=search, type='') }}"
+           class="btn {% if type_filter == '' %}btn-dark{% else %}btn-outline-secondary{% endif %}
+                  btn-sm flex-grow-1">All</a>
+        <a href="{{ url_for('category.index', search=search, type='income') }}"
+           class="btn {% if type_filter == 'income' %}btn-success{% else %}btn-outline-success{% endif %}
+                  btn-sm flex-grow-1">Income</a>
+        <a href="{{ url_for('category.index', search=search, type='expense') }}"
+           class="btn {% if type_filter == 'expense' %}btn-danger{% else %}btn-outline-danger{% endif %}
+                  btn-sm flex-grow-1">Expense</a>
+      </div>
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+      <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+        <i class="bi bi-search me-1"></i>Search
+      </button>
+      <a href="{{ url_for('category.index') }}"
+         class="btn btn-outline-secondary btn-sm flex-grow-1">
+        <i class="bi bi-x-lg"></i>
+      </a>
+    </div>
+    <div class="col-md-2 text-end">
+      <small class="text-muted">
+        {{ categories|length }} categor{% if categories|length != 1 %}ies{% else %}y{% endif %}
+      </small>
+    </div>
   </form>
+
+  {% if search or type_filter %}
+  <div class="mt-2 d-flex gap-2 flex-wrap align-items-center">
+    <small class="text-muted">Active:</small>
+    {% if search %}
+      <span class="badge bg-primary-subtle text-primary">
+        "{{ search }}"
+        <a href="{{ url_for('category.index', type=type_filter) }}"
+           class="text-primary ms-1">×</a>
+      </span>
+    {% endif %}
+    {% if type_filter %}
+      <span class="badge {% if type_filter=='income' %}bg-success-subtle text-success
+                         {% else %}bg-danger-subtle text-danger{% endif %}">
+        {{ type_filter|capitalize }}
+        <a href="{{ url_for('category.index', search=search) }}"
+           class="{% if type_filter=='income' %}text-success{% else %}text-danger{% endif %} ms-1">×</a>
+      </span>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
+
 <div class="row g-3">
   {% for c in categories %}
   <div class="col-md-4 col-sm-6">
@@ -47,7 +104,16 @@
   </div>
   {% else %}
   <div class="col-12 text-center text-muted py-5">
-    <i class="bi bi-tags fs-1 d-block mb-2"></i>No categories yet
+    <i class="bi bi-tags fs-1 d-block mb-2"></i>
+    {% if search or type_filter %}
+      No categories found
+      <div class="mt-2">
+        <a href="{{ url_for('category.index') }}"
+           class="btn btn-sm btn-outline-secondary">Clear filters</a>
+      </div>
+    {% else %}
+      No categories yet
+    {% endif %}
   </div>
   {% endfor %}
 </div>

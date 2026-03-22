@@ -41,6 +41,11 @@
             {{ form.description.label(class='form-label fw-semibold') }}
             {{ form.description(class='form-control', placeholder='Optional note...') }}
           </div>
+          <div class="col-12">
+            {{ form.tag.label(class='form-label fw-semibold') }}
+            {{ form.tag(class='form-control',
+                        placeholder='#travel #food #birthday') }}
+          </div>
           <div class="col-6">
             {{ form.date.label(class='form-label fw-semibold') }}
             {{ form.date(class='form-control') }}
