@@ -2,45 +2,128 @@
 {% block content %}
 <h4 class="fw-bold mb-4">📊 Dashboard</h4>
 
-<div class="row g-3 mb-4">
-  <div class="col-md-4">
-    <div class="card p-3 text-white"
+<!-- This Month Stats -->
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="card p-3 text-white h-100"
          style="background:linear-gradient(135deg,#10b981,#059669)">
-      <div class="small opacity-75 mb-1">Income this month</div>
-      <div class="fs-4 fw-bold">฿{{ "%.2f"|format(income) }}</div>
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="small opacity-75 mb-1">Income this month</div>
+          <div class="fs-4 fw-bold">฿{{ "%.2f"|format(income) }}</div>
+        </div>
+        <i class="bi bi-arrow-up-circle fs-2 opacity-50"></i>
+      </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card p-3 text-white"
+  <div class="col-md-3">
+    <div class="card p-3 text-white h-100"
          style="background:linear-gradient(135deg,#ef4444,#dc2626)">
-      <div class="small opacity-75 mb-1">Expenses this month</div>
-      <div class="fs-4 fw-bold">฿{{ "%.2f"|format(expense) }}</div>
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="small opacity-75 mb-1">Expenses this month</div>
+          <div class="fs-4 fw-bold">฿{{ "%.2f"|format(expense) }}</div>
+        </div>
+        <i class="bi bi-arrow-down-circle fs-2 opacity-50"></i>
+      </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="card p-3 text-white"
-         style="background:linear-gradient(135deg,{% if balance >= 0 %}#6366f1,#4f46e5{% else %}#f59e0b,#d97706{% endif %})">
-      <div class="small opacity-75 mb-1">Balance</div>
-      <div class="fs-4 fw-bold">฿{{ "%.2f"|format(balance) }}</div>
+  <div class="col-md-3">
+    <div class="card p-3 text-white h-100"
+         style="background:linear-gradient(135deg,
+           {% if balance >= 0 %}#6366f1,#4f46e5{% else %}#f59e0b,#d97706{% endif %})">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="small opacity-75 mb-1">Balance</div>
+          <div class="fs-4 fw-bold">฿{{ "%.2f"|format(balance) }}</div>
+        </div>
+        <i class="bi bi-wallet2 fs-2 opacity-50"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card p-3 text-white h-100"
+         style="background:linear-gradient(135deg,
+           {% if savings_rate >= 20 %}#0ea5e9,#0284c7
+           {% elif savings_rate > 0 %}#f59e0b,#d97706
+           {% else %}#6b7280,#4b5563{% endif %})">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="small opacity-75 mb-1">Savings Rate</div>
+          <div class="fs-4 fw-bold">{{ savings_rate }}%</div>
+        </div>
+        <i class="bi bi-piggy-bank fs-2 opacity-50"></i>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="row g-3">
-  <div class="col-md-5">
+<!-- All Time Stats -->
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
+    <div class="card p-3 d-flex flex-row align-items-center gap-3">
+      <div class="rounded-circle d-flex align-items-center justify-content-center"
+           style="width:48px;height:48px;background:#d1fae5;flex-shrink:0;">
+        <i class="bi bi-graph-up text-success fs-5"></i>
+      </div>
+      <div>
+        <div class="text-muted small">Total Income (All time)</div>
+        <div class="fw-bold text-success">฿{{ "%.2f"|format(total_income) }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 d-flex flex-row align-items-center gap-3">
+      <div class="rounded-circle d-flex align-items-center justify-content-center"
+           style="width:48px;height:48px;background:#fee2e2;flex-shrink:0;">
+        <i class="bi bi-graph-down text-danger fs-5"></i>
+      </div>
+      <div>
+        <div class="text-muted small">Total Expenses (All time)</div>
+        <div class="fw-bold text-danger">฿{{ "%.2f"|format(total_expense) }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 d-flex flex-row align-items-center gap-3">
+      <div class="rounded-circle d-flex align-items-center justify-content-center"
+           style="width:48px;height:48px;background:#e0e7ff;flex-shrink:0;">
+        <i class="bi bi-receipt text-primary fs-5"></i>
+      </div>
+      <div>
+        <div class="text-muted small">Total Transactions</div>
+        <div class="fw-bold text-primary">{{ total_tx }} รายการ</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
     <div class="card p-3 h-100">
       <h6 class="fw-bold mb-3">Expenses by Category</h6>
       {% if cat_values %}
         <canvas id="pieChart"></canvas>
       {% else %}
-        <div class="text-center text-muted py-5">
-          <i class="bi bi-pie-chart fs-1 d-block mb-2"></i>
-          No data this month
+        <div class="text-center text-muted py-4">
+          <i class="bi bi-pie-chart fs-1 d-block mb-2"></i>No data this month
         </div>
       {% endif %}
     </div>
   </div>
-  <div class="col-md-7">
+  <div class="col-md-8">
+    <div class="card p-3 h-100">
+      <h6 class="fw-bold mb-3">Income vs Expenses — Last 6 Months</h6>
+      <canvas id="barChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Recent + Top + Budget -->
+<div class="row g-3">
+  <!-- Recent Transactions -->
+  <div class="col-md-5">
     <div class="card p-3 h-100">
       <div class="d-flex justify-content-between mb-3">
         <h6 class="fw-bold mb-0">Recent Transactions</h6>
@@ -52,14 +135,12 @@
       {% if recent %}
       <table class="table table-sm table-hover align-middle">
         <thead><tr>
-          <th>Date</th><th>Description</th><th>Category</th>
-          <th class="text-end">Amount</th>
+          <th>Date</th><th>Category</th><th class="text-end">Amount</th>
         </tr></thead>
         <tbody>
         {% for t in recent %}
         <tr>
-          <td class="text-muted small">{{ t.date.strftime('%d %b %y %H:%M') }}</td>
-          <td>{{ t.description or '—' }}</td>
+          <td class="text-muted small">{{ t.date.strftime('%d %b %H:%M') }}</td>
           <td>
             <span class="badge rounded-pill
               {% if t.type=='income' %}bg-success-subtle text-success
@@ -85,12 +166,84 @@
       {% endif %}
     </div>
   </div>
+
+  <!-- Top 3 + Budget -->
+  <div class="col-md-7">
+    <div class="row g-3">
+
+      <!-- Top 3 Spending -->
+      <div class="col-12">
+        <div class="card p-3">
+          <h6 class="fw-bold mb-3">🔥 Top Spending This Month</h6>
+          {% if top_categories %}
+            {% for name, icon, amount in top_categories %}
+            <div class="d-flex justify-content-between align-items-center
+                        {% if not loop.last %}mb-2 pb-2 border-bottom{% endif %}">
+              <div class="d-flex align-items-center gap-2">
+                <span style="font-size:1.4rem">{{ icon }}</span>
+                <span class="fw-semibold">{{ name }}</span>
+              </div>
+              <span class="text-danger fw-bold">฿{{ "%.2f"|format(amount) }}</span>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center text-muted py-2">
+              <i class="bi bi-bar-chart fs-1 d-block mb-1"></i>No data this month
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Budget Progress -->
+      <div class="col-12">
+        <div class="card p-3">
+          <div class="d-flex justify-content-between mb-3">
+            <h6 class="fw-bold mb-0">Budget This Month</h6>
+            <a href="{{ url_for('budget.index') }}" class="small">View all →</a>
+          </div>
+          {% if budget_data %}
+            {% for b in budget_data %}
+            <div class="mb-2">
+              <div class="d-flex justify-content-between small mb-1">
+                <span>{{ b.budget.category.icon }} {{ b.budget.category.name }}</span>
+                <span class="{% if b.pct >= 100 %}text-danger
+                             {% elif b.pct >= 80 %}text-warning
+                             {% else %}text-muted{% endif %}">
+                  ฿{{ "%.0f"|format(b.spent) }} / ฿{{ "%.0f"|format(b.limit) }}
+                </span>
+              </div>
+              <div class="progress" style="height:8px;">
+                <div class="progress-bar
+                     {% if b.pct >= 100 %}bg-danger
+                     {% elif b.pct >= 80 %}bg-warning
+                     {% else %}bg-success{% endif %}"
+                     style="width:{{ b.pct }}%">
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center text-muted py-2">
+              <i class="bi bi-wallet2 fs-1 d-block mb-1"></i>No budget set
+            </div>
+          {% endif %}
+          <div class="mt-2 text-end">
+            <a href="{{ url_for('budget.add_budget') }}"
+               class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-plus-lg"></i> Set Budget
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-{% if cat_values %}
 <script>
+{% if cat_values %}
 new Chart(document.getElementById('pieChart'), {
   type: 'doughnut',
   data: {
@@ -104,6 +257,37 @@ new Chart(document.getElementById('pieChart'), {
   },
   options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
 });
-</script>
 {% endif %}
+
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: {{ bar_labels|tojson }},
+    datasets: [
+      {
+        label: 'Income',
+        data: {{ bar_income|tojson }},
+        backgroundColor: 'rgba(16,185,129,0.7)',
+        borderRadius: 6,
+      },
+      {
+        label: 'Expense',
+        data: {{ bar_expense|tojson }},
+        backgroundColor: 'rgba(239,68,68,0.7)',
+        borderRadius: 6,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'top' } },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: val => '฿' + val.toLocaleString() }
+      }
+    }
+  }
+});
+</script>
 {% endblock %}

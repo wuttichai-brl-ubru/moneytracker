@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from app.extensions import db
-from app.profile.forms import UpdateProfileForm
+from app.profile.forms import UpdateProfileForm, ChangePasswordForm
 from PIL import Image
 from werkzeug.datastructures import FileStorage
 import os, secrets
@@ -27,7 +27,6 @@ def view_profile():
 def edit_profile():
     form = UpdateProfileForm(obj=current_user)
     if form.validate_on_submit():
-        # ✅ เช็คว่าเป็น file จริงๆ ไม่ใช่ string
         if isinstance(form.profile_image.data, FileStorage) and form.profile_image.data.filename:
             current_user.profile_image = save_profile_pic(form.profile_image.data)
         current_user.fullname = form.fullname.data or None
@@ -36,5 +35,19 @@ def edit_profile():
         db.session.commit()
         flash('Profile updated! ✅', 'success')
         return redirect(url_for('profile.view_profile'))
-    return render_template('profile/profile_form.html',
-        form=form, title='Edit Profile')
+    return render_template('profile/profile_form.html', form=form, title='Edit Profile')
+
+@profile.route('/change-password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if form.validate_on_submit():
+        if not current_user.check_password(form.current_password.data):
+            flash('Current password is incorrect.', 'danger')
+            return redirect(url_for('profile.change_password'))
+        current_user.set_password(form.new_password.data)
+        db.session.commit()
+        flash('Password changed successfully! ✅', 'success')
+        return redirect(url_for('profile.view_profile'))
+    return render_template('profile/change_password.html',
+        form=form, title='Change Password')

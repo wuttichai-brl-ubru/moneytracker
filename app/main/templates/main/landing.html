@@ -1,0 +1,66 @@
+{% extends 'layout_auth.html' %}
+{% block content %}
+<div style="min-height:100vh;
+            background:linear-gradient(135deg,#1a1c2e 0%,#2d2f4e 100%);
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center;
+            padding:2rem 1rem;">
+
+  <!-- Logo & Title -->
+  <div class="text-center mb-5">
+    <div style="font-size:4rem">💸</div>
+    <h1 class="fw-bold text-white mt-2 mb-1">MoneyTracker</h1>
+    <p class="text-white-50 fs-5">Track your income & expenses — simply and smartly</p>
+  </div>
+
+  <!-- Feature Cards -->
+  <div class="row g-3 mb-5" style="max-width:800px; width:100%;">
+    <div class="col-md-4">
+      <div class="card p-3 text-center h-100"
+           style="background:rgba(255,255,255,.07);
+                  border:1px solid rgba(255,255,255,.1);">
+        <div style="font-size:2rem">📊</div>
+        <div class="text-white fw-semibold mt-2">Dashboard</div>
+        <div class="text-white-50 small mt-1">
+          สรุปรายรับ-รายจ่าย พร้อม Chart แบบ real-time
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-3 text-center h-100"
+           style="background:rgba(255,255,255,.07);
+                  border:1px solid rgba(255,255,255,.1);">
+        <div style="font-size:2rem">🏷️</div>
+        <div class="text-white fw-semibold mt-2">Categories</div>
+        <div class="text-white-50 small mt-1">
+          แยกหมวดหมู่รายรับ-รายจ่ายได้ตามต้องการ
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card p-3 text-center h-100"
+           style="background:rgba(255,255,255,.07);
+                  border:1px solid rgba(255,255,255,.1);">
+        <div style="font-size:2rem">💰</div>
+        <div class="text-white fw-semibold mt-2">Budget</div>
+        <div class="text-white-50 small mt-1">
+          ตั้งงบประมาณรายเดือน ติดตาม progress
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="d-flex gap-3 flex-wrap justify-content-center">
+    <a href="{{ url_for('auth.register') }}"
+       class="btn btn-primary btn-lg px-5 fw-semibold">
+      Get Started — Free
+    </a>
+    <a href="{{ url_for('auth.login') }}"
+       class="btn btn-outline-light btn-lg px-5">
+      Log In
+    </a>
+  </div>
+
+</div>
+{% endblock %}

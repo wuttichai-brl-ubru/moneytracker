@@ -19,9 +19,15 @@
           Member since {{ current_user.created_at.strftime('%d %b %Y') }}
         </p>
       </div>
-      <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-primary w-100">
-        <i class="bi bi-pencil me-2"></i>Edit Profile
-      </a>
+      <div class="d-flex flex-column gap-2">
+        <a href="{{ url_for('profile.edit_profile') }}" class="btn btn-primary w-100">
+          <i class="bi bi-pencil me-2"></i>Edit Profile
+        </a>
+        <a href="{{ url_for('profile.change_password') }}"
+           class="btn btn-outline-secondary w-100">
+          <i class="bi bi-lock me-2"></i>Change Password
+        </a>
+      </div>
     </div>
   </div>
 </div>
