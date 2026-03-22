@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="page-center">
+  <div style="max-width:560px; width:100%;">
+    <div class="d-flex align-items-center mb-4">
+      <a href="{{ url_for('transaction.index') }}"
+         class="btn btn-outline-secondary btn-sm me-3">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h4 class="fw-bold mb-0">{{ title }}</h4>
+    </div>
+    <div class="card p-4">
+      <form method="POST" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="row g-3">
+          <div class="col-6">
+            {{ form.type.label(class='form-label fw-semibold') }}
+            {{ form.type(class='form-select', id='type-select') }}
+          </div>
+          <div class="col-6">
+            {{ form.amount.label(class='form-label fw-semibold') }}
+            {{ form.amount(class='form-control' + (' is-invalid' if form.amount.errors else ''),
+                           placeholder='0.00') }}
+            {% for e in form.amount.errors %}
+              <div class="invalid-feedback">{{ e }}</div>
+            {% endfor %}
+          </div>
+          <div class="col-12">
+            {{ form.category_id.label(class='form-label fw-semibold') }}
+            <select name="category_id" id="category-select" class="form-select">
+              {% for id, name in form.category_id.choices %}
+                <option value="{{ id }}"
+                        data-type="{{ category_types[id] }}"
+                        {% if form.category_id.data == id %}selected{% endif %}>
+                  {{ name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12">
+            {{ form.description.label(class='form-label fw-semibold') }}
+            {{ form.description(class='form-control', placeholder='Optional note...') }}
+          </div>
+          <div class="col-6">
+            {{ form.date.label(class='form-label fw-semibold') }}
+            {{ form.date(class='form-control') }}
+          </div>
+          <div class="col-6">
+            {{ form.slip_image.label(class='form-label fw-semibold') }}
+            {{ form.slip_image(class='form-control') }}
+            {% if is_edit and transaction and transaction.slip_image %}
+              <img src="{{ url_for('static', filename='img/'+transaction.slip_image) }}"
+                   height="50" class="rounded mt-1">
+            {% endif %}
+          </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+          {{ form.submit(class='btn btn-primary px-4') }}
+          <a href="{{ url_for('transaction.index') }}"
+             class="btn btn-outline-secondary px-4">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const allOptions = Array.from(document.querySelectorAll('#category-select option'));
+
+  function filterCategories() {
+    const selectedType = document.getElementById('type-select').value;
+    const catSelect    = document.getElementById('category-select');
+    const currentVal   = catSelect.value;
+
+    allOptions.forEach(opt => {
+      opt.style.display = (opt.dataset.type === selectedType) ? '' : 'none';
+    });
+
+    const visible = allOptions.filter(o => o.style.display !== 'none');
+    if (visible.length > 0) {
+      const stillValid = visible.find(o => o.value === currentVal);
+      catSelect.value = stillValid ? currentVal : visible[0].value;
+    }
+  }
+
+  document.getElementById('type-select').addEventListener('change', filterCategories);
+  filterCategories();
+</script>
+{% endblock %}

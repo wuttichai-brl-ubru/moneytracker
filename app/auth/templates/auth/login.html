@@ -1,0 +1,38 @@
+{% extends 'layout_auth.html' %}
+{% block content %}
+<div class="auth-card card shadow p-4">
+  <div class="text-center mb-3">
+    <div style="font-size:3rem">💸</div>
+    <h4 class="fw-bold">MoneyTracker</h4>
+    <p class="text-muted small">Track your income & expenses</p>
+  </div>
+  <form method="POST" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.identity.label(class='form-label fw-semibold') }}
+      {{ form.identity(class='form-control form-control-lg' + (' is-invalid' if form.identity.errors else ''),
+                       placeholder='username or email') }}
+      {% for e in form.identity.errors %}
+        <div class="invalid-feedback">{{ e }}</div>
+      {% endfor %}
+    </div>
+    <div class="mb-3">
+      {{ form.password.label(class='form-label fw-semibold') }}
+      {{ form.password(class='form-control form-control-lg' + (' is-invalid' if form.password.errors else ''),
+                       placeholder='••••••••') }}
+      {% for e in form.password.errors %}
+        <div class="invalid-feedback">{{ e }}</div>
+      {% endfor %}
+    </div>
+    <div class="mb-3 form-check">
+      {{ form.remember(class='form-check-input') }}
+      {{ form.remember.label(class='form-check-label') }}
+    </div>
+    {{ form.submit(class='btn btn-primary btn-lg w-100 fw-semibold') }}
+  </form>
+  <hr>
+  <p class="text-center small mb-0">
+    Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up</a>
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0"><i class="bi bi-tags me-2"></i>Categories</h4>
+  <a href="{{ url_for('category.add_category') }}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Add Category
+  </a>
+</div>
+<div class="card p-3 mb-3">
+  <form method="GET" class="d-flex gap-2">
+    <input name="search" class="form-control"
+           placeholder="🔍 Search categories..." value="{{ search }}">
+    <button class="btn btn-outline-primary px-4">Search</button>
+    <a href="{{ url_for('category.index') }}" class="btn btn-outline-secondary">Clear</a>
+  </form>
+</div>
+<div class="row g-3">
+  {% for c in categories %}
+  <div class="col-md-4 col-sm-6">
+    <div class="card p-3">
+      <div class="d-flex align-items-center gap-3">
+        <div style="font-size:2rem">{{ c.icon }}</div>
+        <div class="flex-grow-1">
+          <div class="fw-semibold">{{ c.name }}</div>
+          <span class="badge rounded-pill
+            {% if c.type=='income' %}bg-success-subtle text-success
+            {% else %}bg-danger-subtle text-danger{% endif %}">
+            {{ c.type|capitalize }}
+          </span>
+        </div>
+        <div class="d-flex gap-1">
+          <a href="{{ url_for('category.edit_category', id=c.id) }}"
+             class="btn btn-sm btn-outline-warning">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <form method="POST"
+                action="{{ url_for('category.delete_category', id=c.id) }}"
+                onsubmit="return confirm('Delete this category?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12 text-center text-muted py-5">
+    <i class="bi bi-tags fs-1 d-block mb-2"></i>No categories yet
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
