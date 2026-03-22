@@ -5,6 +5,7 @@ from app.transaction.forms import TransactionForm
 from app.models.transaction import Transaction
 from app.models.category import Category
 from PIL import Image
+from sqlalchemy import extract
 import os, secrets
 
 transaction = Blueprint('transaction', __name__, template_folder='templates')
@@ -20,20 +21,27 @@ def save_slip(file):
 
 def category_choices():
     cats = Category.query.filter_by(user_id=current_user.id).all()
-    return [(c.id, f"{c.icon} {c.name}", c.type) for c in cats]   # ← เพิ่ม c.type
+    return [(c.id, f"{c.icon} {c.name}", c.type) for c in cats]
 
 @transaction.route('/')
 @login_required
 def index():
-    page        = request.args.get('page', 1, type=int)
+    page        = request.args.get('page',   1,  type=int)
     search      = request.args.get('search', '').strip()
-    type_filter = request.args.get('type', '')
+    type_filter = request.args.get('type',   '')
+    month       = request.args.get('month',  '', type=str)
+    year        = request.args.get('year',   '', type=str)
 
     q = Transaction.query.filter_by(user_id=current_user.id)
+
     if search:
         q = q.filter(Transaction.description.ilike(f'%{search}%'))
     if type_filter in ('income', 'expense'):
         q = q.filter_by(type=type_filter)
+    if month.isdigit():
+        q = q.filter(extract('month', Transaction.date) == int(month))
+    if year.isdigit():
+        q = q.filter(extract('year', Transaction.date) == int(year))
 
     paginated = (q.order_by(Transaction.date.desc(), Transaction.created_at.desc())
                   .paginate(page=page, per_page=10, error_out=False))
@@ -48,7 +56,7 @@ def index():
 def add_transaction():
     form    = TransactionForm()
     choices = category_choices()
-    form.category_id.choices = [(c[0], c[1]) for c in choices]   # ← แก้
+    form.category_id.choices = [(c[0], c[1]) for c in choices]
     if form.validate_on_submit():
         slip = save_slip(form.slip_image.data) if form.slip_image.data else None
         t = Transaction(
@@ -63,7 +71,7 @@ def add_transaction():
         return redirect(url_for('transaction.index'))
     return render_template('transaction/transaction_form.html',
         form=form, title='Add Transaction', is_edit=False,
-        category_types={ c[0]: c[2] for c in choices })   # ← เพิ่ม
+        category_types={ c[0]: c[2] for c in choices })
 
 @transaction.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -71,7 +79,7 @@ def edit_transaction(id):
     t       = Transaction.query.filter_by(id=id, user_id=current_user.id).first_or_404()
     form    = TransactionForm(obj=t)
     choices = category_choices()
-    form.category_id.choices = [(c[0], c[1]) for c in choices]   # ← แก้
+    form.category_id.choices = [(c[0], c[1]) for c in choices]
     if form.validate_on_submit():
         if form.slip_image.data:
             t.slip_image = save_slip(form.slip_image.data)
@@ -85,7 +93,7 @@ def edit_transaction(id):
         return redirect(url_for('transaction.index'))
     return render_template('transaction/transaction_form.html',
         form=form, title='Edit Transaction', is_edit=True, transaction=t,
-        category_types={ c[0]: c[2] for c in choices })   # ← เพิ่ม
+        category_types={ c[0]: c[2] for c in choices })
 
 @transaction.route('/delete/<int:id>', methods=['POST'])
 @login_required

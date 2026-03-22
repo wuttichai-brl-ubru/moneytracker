@@ -21,6 +21,8 @@ markupsafe==3.0.3
 packaging==26.0
 pillow==12.1.1
 psycopg2-binary==2.9.11
+python-dateutil==2.9.0.post0
+six==1.17.0
 sqlalchemy==2.0.48
 typing-extensions==4.15.0
 werkzeug==3.1.6

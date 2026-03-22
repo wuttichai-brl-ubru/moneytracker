@@ -7,28 +7,142 @@
   </a>
 </div>
 
+<!-- Filter Bar -->
 <div class="card p-3 mb-3">
-  <form method="GET" class="row g-2 align-items-end">
-    <div class="col-md-5">
-      <input name="search" class="form-control"
-             placeholder="🔍 Search description..." value="{{ search }}">
+  <form method="GET" id="filter-form">
+    <div class="row g-2 align-items-end">
+
+      <!-- Search -->
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold text-muted mb-1">Search</label>
+        <div class="input-group">
+          <span class="input-group-text bg-white">
+            <i class="bi bi-search text-muted"></i>
+          </span>
+          <input name="search" class="form-control border-start-0"
+                 placeholder="Description..." value="{{ search }}"
+                 id="search-input">
+        </div>
+      </div>
+
+      <!-- Type Filter -->
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Type</label>
+        <div class="d-flex gap-1">
+          <a href="{{ url_for('transaction.index', search=search, type='') }}"
+             class="btn {% if type_filter == '' %}btn-dark{% else %}btn-outline-secondary{% endif %} btn-sm flex-grow-1">
+            All
+          </a>
+          <a href="{{ url_for('transaction.index', search=search, type='income') }}"
+             class="btn {% if type_filter == 'income' %}btn-success{% else %}btn-outline-success{% endif %} btn-sm flex-grow-1">
+            Income
+          </a>
+          <a href="{{ url_for('transaction.index', search=search, type='expense') }}"
+             class="btn {% if type_filter == 'expense' %}btn-danger{% else %}btn-outline-danger{% endif %} btn-sm flex-grow-1">
+            Expense
+          </a>
+        </div>
+      </div>
+
+      <!-- Month Filter -->
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Month</label>
+        <select name="month" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">All Months</option>
+          {% for i, m in [(1,'Jan'),(2,'Feb'),(3,'Mar'),(4,'Apr'),
+                          (5,'May'),(6,'Jun'),(7,'Jul'),(8,'Aug'),
+                          (9,'Sep'),(10,'Oct'),(11,'Nov'),(12,'Dec')] %}
+            <option value="{{ i }}"
+              {% if request.args.get('month', '') == i|string %}selected{% endif %}>
+              {{ m }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Year Filter -->
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold text-muted mb-1">Year</label>
+        <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+          <option value="">All Years</option>
+          {% for y in range(2023, 2027) %}
+            <option value="{{ y }}"
+              {% if request.args.get('year', '') == y|string %}selected{% endif %}>
+              {{ y }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Buttons -->
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+          <i class="bi bi-search me-1"></i>Filter
+        </button>
+        <a href="{{ url_for('transaction.index') }}"
+           class="btn btn-outline-secondary btn-sm flex-grow-1">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      </div>
+
     </div>
-    <div class="col-md-3">
-      <select name="type" class="form-select">
-        <option value="">All Types</option>
-        <option value="income"  {% if type_filter=='income'  %}selected{% endif %}>Income 💚</option>
-        <option value="expense" {% if type_filter=='expense' %}selected{% endif %}>Expense ❤️</option>
-      </select>
+
+    <!-- Active Filters Badge -->
+    {% if search or type_filter or request.args.get('month') or request.args.get('year') %}
+    <div class="mt-2 d-flex gap-2 flex-wrap align-items-center">
+      <small class="text-muted">Active filters:</small>
+      {% if search %}
+        <span class="badge bg-primary-subtle text-primary">
+          Search: "{{ search }}"
+          <a href="{{ url_for('transaction.index', type=type_filter,
+                              month=request.args.get('month',''),
+                              year=request.args.get('year','')) }}"
+             class="text-primary ms-1">×</a>
+        </span>
+      {% endif %}
+      {% if type_filter %}
+        <span class="badge {% if type_filter=='income' %}bg-success-subtle text-success
+                           {% else %}bg-danger-subtle text-danger{% endif %}">
+          {{ type_filter|capitalize }}
+          <a href="{{ url_for('transaction.index', search=search,
+                              month=request.args.get('month',''),
+                              year=request.args.get('year','')) }}"
+             class="{% if type_filter=='income' %}text-success{% else %}text-danger{% endif %} ms-1">×</a>
+        </span>
+      {% endif %}
+      {% if request.args.get('month') %}
+        <span class="badge bg-secondary-subtle text-secondary">
+          Month: {{ request.args.get('month') }}
+          <a href="{{ url_for('transaction.index', search=search, type=type_filter,
+                              year=request.args.get('year','')) }}"
+             class="text-secondary ms-1">×</a>
+        </span>
+      {% endif %}
+      {% if request.args.get('year') %}
+        <span class="badge bg-secondary-subtle text-secondary">
+          Year: {{ request.args.get('year') }}
+          <a href="{{ url_for('transaction.index', search=search, type=type_filter,
+                              month=request.args.get('month','')) }}"
+             class="text-secondary ms-1">×</a>
+        </span>
+      {% endif %}
     </div>
-    <div class="col-auto">
-      <button class="btn btn-outline-primary">Filter</button>
-    </div>
-    <div class="col-auto">
-      <a href="{{ url_for('transaction.index') }}" class="btn btn-outline-secondary">Clear</a>
-    </div>
+    {% endif %}
+
   </form>
 </div>
 
+<!-- Summary Bar -->
+{% if transactions.total > 0 %}
+<div class="d-flex gap-3 mb-3 flex-wrap">
+  <small class="text-muted">
+    <i class="bi bi-list-ul me-1"></i>
+    {{ transactions.total }} record{% if transactions.total > 1 %}s{% endif %} found
+  </small>
+</div>
+{% endif %}
+
+<!-- Table -->
 <div class="card">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
@@ -82,7 +196,8 @@
       {% else %}
       <tr>
         <td colspan="7" class="text-center text-muted py-5">
-          <i class="bi bi-inbox fs-1 d-block mb-2"></i>No transactions found
+          <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+          No transactions found
         </td>
       </tr>
       {% endfor %}
@@ -98,7 +213,10 @@
       {% if p %}
         <li class="page-item {% if p == transactions.page %}active{% endif %}">
           <a class="page-link"
-             href="{{ url_for('transaction.index', page=p, search=search, type=type_filter) }}">
+             href="{{ url_for('transaction.index', page=p, search=search,
+                              type=type_filter,
+                              month=request.args.get('month',''),
+                              year=request.args.get('year','')) }}">
             {{ p }}
           </a>
         </li>
@@ -109,4 +227,17 @@
   </ul>
 </nav>
 {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Auto submit เมื่อกด Enter ใน search box
+  document.getElementById('search-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('filter-form').submit();
+    }
+  });
+</script>
 {% endblock %}
